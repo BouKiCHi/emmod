@@ -1,0 +1,7 @@
+Debug/
+Release/
+.vs/
+.vscode/
+*.ilk
+*.vcxproj.user
+src/*.aps
