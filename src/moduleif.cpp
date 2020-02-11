@@ -25,10 +25,12 @@ public:
 
 private:
 
-	EmMod Sound;
+	EmMod Mod;
 	ConfigMP Config;
 	ISystem* System;
 	IIOBus* IoBus;
+	IIOAccess* IoAccess;
+	IMemoryManager* mm;
 	IConfigPropBase* pb;
 };
 
@@ -36,6 +38,7 @@ ExtModule::ExtModule()
 {
 	System = NULL;
 	IoBus = NULL;
+	IoAccess = NULL;
 	pb = NULL;
 
 	Config.Init(hinst);
@@ -46,19 +49,29 @@ bool ExtModule::Init(ISystem* _sys)
 	// インターフェースの接続
 	System = _sys;
 	IoBus = (IIOBus*)System->QueryIF(M88IID_IOBus1);
+	IoAccess = (IIOAccess*)System->QueryIF(M88IID_IOAccess1);
 	pb = (IConfigPropBase*)System->QueryIF(M88IID_ConfigPropBase);
+	mm = (IMemoryManager*)System->QueryIF(M88IID_MemoryManager1);
 
-	if (!IoBus || !pb) {
+	if (!IoBus || !IoAccess || !pb) {
 		return false;
 	}
+
+	Mod.SetIoAccess(IoAccess);
+	if (!Mod.SetMemoryManager(mm)) return false;
 
 	// 0x108 = PC88::pres
 	const static IIOBus::Connector ConnectList[] =
 	{
 		{ 0x108,IIOBus::portout,EmMod::RESET_CPU },
-		{ 0, 0, 0 }
+		{ 0x31,IIOBus::portout,EmMod::PORT31 },
+		{ 0x71,IIOBus::portout,EmMod::PORT71 },
+		{ 0x99,IIOBus::portout,EmMod::PORT99 },
+		{ 0xE2,IIOBus::portout,EmMod::PORTE2 },
+		{ 0xE3,IIOBus::portout,EmMod::PORTE3 },
+		{ 0, 0, 0 } // 終端
 	};
-	if (!IoBus->Connect(&Sound, ConnectList))
+	if (!IoBus->Connect(&Mod, ConnectList))
 		return false;
 
 	pb->Add(&Config);
@@ -68,7 +81,7 @@ bool ExtModule::Init(ISystem* _sys)
 void ExtModule::Release()
 {
 	if (IoBus)
-		IoBus->Disconnect(&Sound);
+		IoBus->Disconnect(&Mod);
 	if (pb)
 		pb->Remove(&Config);
 
