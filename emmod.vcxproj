@@ -43,7 +43,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>c:\emu\m88\</OutDir>
+    <OutDir>..\m88\Debug</OutDir>
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>..\m88\src\common;..\m88\src\win32;..\m88\src;$(IncludePath)</IncludePath>
     <TargetExt>.m88</TargetExt>
@@ -94,7 +94,7 @@
       <LinkDLL>true</LinkDLL>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <OutputFile>c:\emu\m88\$(TargetName)$(TargetExt)</OutputFile>
+      <OutputFile>$(TargetDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\m88\src\win32\instthnk.cpp" />
+    <ClCompile Include="src\comm\CommMemory.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\guid.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -158,6 +159,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\comm\CommMemory.h" />
     <ClInclude Include="src\loginfo.h" />
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\headers.h" />

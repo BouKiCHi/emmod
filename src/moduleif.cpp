@@ -40,6 +40,7 @@ ExtModule::ExtModule()
 	IoBus = NULL;
 	IoAccess = NULL;
 	pb = NULL;
+	mm = NULL;
 
 	Config.Init(hinst);
 }
@@ -53,9 +54,11 @@ bool ExtModule::Init(ISystem* _sys)
 	pb = (IConfigPropBase*)System->QueryIF(M88IID_ConfigPropBase);
 	mm = (IMemoryManager*)System->QueryIF(M88IID_MemoryManager1);
 
-	if (!IoBus || !IoAccess || !pb) {
+	if (!IoBus || !IoAccess || !pb || !mm) {
 		return false;
 	}
+
+	if (!Mod.OpenMemory()) return false;
 
 	Mod.SetIoAccess(IoAccess);
 	if (!Mod.SetMemoryManager(mm)) return false;
@@ -65,7 +68,9 @@ bool ExtModule::Init(ISystem* _sys)
 	{
 		{ 0x108,IIOBus::portout,EmMod::RESET_CPU },
 		{ 0x31,IIOBus::portout,EmMod::PORT31 },
+		{ 0x70,IIOBus::portout,EmMod::PORT70 },
 		{ 0x71,IIOBus::portout,EmMod::PORT71 },
+		{ 0x78,IIOBus::portout,EmMod::PORT78 },
 		{ 0x99,IIOBus::portout,EmMod::PORT99 },
 		{ 0xE2,IIOBus::portout,EmMod::PORTE2 },
 		{ 0xE3,IIOBus::portout,EmMod::PORTE3 },
@@ -74,18 +79,20 @@ bool ExtModule::Init(ISystem* _sys)
 	if (!IoBus->Connect(&Mod, ConnectList))
 		return false;
 
+	Mod.StartThread();
+
 	pb->Add(&Config);
 	return true;
 }
 
 void ExtModule::Release()
 {
+	Mod.CloseThread();
+
 	if (IoBus)
 		IoBus->Disconnect(&Mod);
 	if (pb)
 		pb->Remove(&Config);
-
-	Config.Release();
 
 	delete this;
 }
@@ -112,15 +119,6 @@ BOOL APIENTRY DllMain(HANDLE hmod, DWORD rfc, LPVOID)
 	{
 	case DLL_PROCESS_ATTACH:
 		hinst = (HINSTANCE)hmod;
-		break;
-
-	case DLL_THREAD_ATTACH:
-		break;
-
-	case DLL_THREAD_DETACH:
-		break;
-
-	case DLL_PROCESS_DETACH:
 		break;
 	}
 	return true;

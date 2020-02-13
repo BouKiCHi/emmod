@@ -8,15 +8,17 @@
 class ConfigMP : public IConfigPropSheet
 {
 public:
-	void Release(void);
 	ConfigMP();
 	~ConfigMP();
-	bool Init(HINSTANCE _hinst);  
+	bool Init(HINSTANCE _hinst);
 	bool IFCALL Setup(IConfigPropBase*, PROPSHEETPAGE* psp);
 	
 private:
 	BOOL PageProc(HWND, UINT, WPARAM, LPARAM);
 	static BOOL CALLBACK PageGate(ConfigMP*, HWND, UINT, WPARAM, LPARAM);
+
+	static INT_PTR CALLBACK PageGate2(HWND, UINT, WPARAM, LPARAM);
+
 
 	HINSTANCE hinst;
 	IConfigPropBase* base;
