@@ -5,11 +5,14 @@
 
 // ---------------------------------------------------------------------------
 
+
+ConfigMP* ConfigMP::selfptr = nullptr;
+
 ConfigMP::ConfigMP()
 {
 	base = NULL;
 	hinst = NULL;
-	gate.SetDestination(PageGate, this);
+	this->selfptr = this;
 }
 
 ConfigMP::~ConfigMP()
@@ -33,7 +36,7 @@ bool IFCALL ConfigMP::Setup(IConfigPropBase* _base, PROPSHEETPAGE* psp)
 	psp->hInstance = hinst;
 	psp->pszTemplate = MAKEINTRESOURCE(IDD_CONFIG);
 	psp->pszIcon = 0;
-	psp->pfnDlgProc = (DLGPROC)(void*)gate;
+	psp->pfnDlgProc = reinterpret_cast<DLGPROC>(&ConfigMP::PageGate);
 	psp->lParam = 0;
 	return true;
 }
@@ -64,10 +67,10 @@ BOOL ConfigMP::PageProc(HWND hdlg, UINT msg, WPARAM wp, LPARAM lp)
 }
 
 BOOL CALLBACK ConfigMP::PageGate
-(ConfigMP* config, HWND hwnd, UINT m, WPARAM w, LPARAM l)
+(HWND hwnd, UINT m, WPARAM w, LPARAM l)
 {
-	if (config) {
-		return config->PageProc(hwnd, m, w, l);
+	if (ConfigMP::selfptr != nullptr ) {
+		return ConfigMP::selfptr->PageProc(hwnd, m, w, l);
 	} else {
 		return FALSE;
 	}

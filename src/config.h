@@ -3,7 +3,6 @@
 #define incl_config_h
 
 #include "if/ifcommon.h"
-#include "instthnk.h"
 
 class ConfigMP : public IConfigPropSheet
 {
@@ -15,14 +14,14 @@ public:
 	
 private:
 	BOOL PageProc(HWND, UINT, WPARAM, LPARAM);
-	static BOOL CALLBACK PageGate(ConfigMP*, HWND, UINT, WPARAM, LPARAM);
+	static BOOL CALLBACK PageGate(HWND, UINT, WPARAM, LPARAM);
 
 	static INT_PTR CALLBACK PageGate2(HWND, UINT, WPARAM, LPARAM);
 
 
 	HINSTANCE hinst;
 	IConfigPropBase* base;
-	InstanceThunk gate;
+	static ConfigMP* selfptr;
 };
 
 #endif // incl_config_h
